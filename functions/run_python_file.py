@@ -35,3 +35,30 @@ def run_python_file(working_directory: str, file_path: str, args: list[str] | No
 
     except Exception as e:
         return f"Error: executing Python file: {e}"
+
+schema_run_python_file = {
+    "type": "function",
+    "function": {
+        "name": "run_python_file",
+        "description": "allows to run python files",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "path to a python file that we want to run",
+                },
+                "args": {
+                    "type": "array", 
+                    "items": {
+                        "type": "string"
+                        },
+                        "description": "these are optional args that can be passed to the function. Ex: python3 main.py args <- goes here"
+                    }
+            },
+            "required": ["file_path"]
+        },
+    },
+}
+ 
+
