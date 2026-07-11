@@ -1,11 +1,10 @@
+import sys
 import os 
 from dotenv import load_dotenv
 from openai import OpenAI
 import argparse
 from prompts import system_prompt
 from call_function import available_functions, call_function
-
-import json
 
 load_dotenv()
 api_key = os.environ.get("OPENROUTER_API_KEY")
@@ -27,34 +26,44 @@ def main():
     messages=[{"role": "system", "content": system_prompt}, 
               {"role": "user", "content": args.user_prompt},]
 
-    response = client.chat.completions.create(
-        model= "openrouter/free", 
-        messages= messages, 
-        tools=available_functions,)
+    for _ in range(20):
 
-    if(response.usage == None):
+        response = client.chat.completions.create(
+            model= "openrouter/free", 
+            messages= messages, 
+            tools=available_functions,)
 
-        raise RuntimeError("API request failed, something went wrong, check if everything is ok")
+        if(response.usage == None):
 
-    elif(args.verbose == True):
+            raise RuntimeError("API request failed, something went wrong, check if everything is ok")
 
-        print(f"User prompt: {args.user_prompt}")
-        print(f"Prompt tokens: {response.usage.prompt_tokens}")
-        print(f"Response tokens: {response.usage.completion_tokens}")
+        elif(args.verbose == True):
 
-    message = response.choices[0].message
+            print(f"User prompt: {args.user_prompt}")
+            print(f"Prompt tokens: {response.usage.prompt_tokens}")
+            print(f"Response tokens: {response.usage.completion_tokens}")
 
-    if(message.tool_calls != None):
-        for tool_call in message.tool_calls:
-            result_message = call_function(tool_call, args.verbose)
+        message = response.choices[0].message
 
-            if not result_message["content"]:
-                raise Exception("your function doesn't work as planned")
+        messages.append(message)
+        if message.tool_calls:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, args.verbose)
+                messages.append(result_message)
+                if not result_message["content"]:
+                    raise Exception("your function doesn't work as planned")
 
-            if(args.verbose == True):
-                print(f"-> {result_message['content']}")
-    else:
-        print(message.content)
+                if(args.verbose == True):
+                    print(f"-> {result_message['content']}")
+        else:
+            print(message.content)
+            return
+
+
+    print("Agent failed to produce a final response after the maximum number of iterations.")
+    sys.exit(1)
+
+
 
 if __name__ == "__main__":
     main()
