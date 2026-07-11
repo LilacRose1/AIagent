@@ -8,6 +8,8 @@ from collections.abc import Callable
 available_functions = [schema_get_files_info, schema_get_file_content, schema_write_file, schema_run_python_file]
 
 def call_function(tool_call, verbose: bool = False) -> dict:
+    """Dispatch a single tool call requested by the model and return the
+    OpenAI-format tool result message."""
 
     function_name = tool_call.function.name
     function_args = json.loads(tool_call.function.arguments or "{}")
@@ -31,6 +33,8 @@ def call_function(tool_call, verbose: bool = False) -> dict:
             "content": f"Error: Unknown function: {function_name}",
         }
 
+    # Every function is sandboxed to this directory regardless of what the
+    # model passes, so the agent can never read/write/execute outside it.
     function_args["working_directory"] = "./calculator"
 
     result = function_map[function_name](**function_args)

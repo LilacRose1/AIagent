@@ -1,9 +1,13 @@
 import os
 
 def get_files_info(working_directory: str, directory: str = ".") -> str:
+    """List entries in `directory` (relative to the sandboxed working
+    directory) with their size and file/dir status."""
     try:
         working_dir_abs = os.path.abspath(working_directory)
         target_dir = os.path.normpath(os.path.join(working_dir_abs, directory))
+        # Resolve both paths and check the target didn't escape the working
+        # directory via ".." or an absolute path, before touching the filesystem.
         valid_dir = os.path.commonpath([working_dir_abs, target_dir]) == working_dir_abs
 
         if(valid_dir == False):

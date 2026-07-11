@@ -2,9 +2,12 @@ import os
 import subprocess
 
 def run_python_file(working_directory: str, file_path: str, args: list[str] | None = None) -> str:
+    """Run `file_path` as a Python script (relative to the sandboxed working
+    directory), passing `args` as CLI arguments, and capture its output."""
     try:
         working_dir_abs = os.path.abspath(working_directory)
         target_file = os.path.normpath(os.path.join(working_dir_abs, file_path))
+        # Guard against path traversal (e.g. "../../etc/passwd") before executing.
         valid_file = os.path.commonpath([working_dir_abs, target_file]) == working_dir_abs
 
         if(valid_file == False):

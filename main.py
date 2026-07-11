@@ -23,9 +23,11 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     args = parser.parse_args()
-    messages=[{"role": "system", "content": system_prompt}, 
+    messages=[{"role": "system", "content": system_prompt},
               {"role": "user", "content": args.user_prompt},]
 
+    # Agent loop: keep letting the model call tools until it returns a plain
+    # text response, or bail out after 20 rounds to avoid an infinite loop.
     for _ in range(20):
 
         response = client.chat.completions.create(
@@ -46,6 +48,8 @@ def main():
         message = response.choices[0].message
 
         messages.append(message)
+        # The model may request one or more tool calls in a single turn; run
+        # each one and feed its result back before asking the model again.
         if message.tool_calls:
             for tool_call in message.tool_calls:
                 result_message = call_function(tool_call, args.verbose)
