@@ -40,13 +40,13 @@ schema_run_python_file = {
     "type": "function",
     "function": {
         "name": "run_python_file",
-        "description": "allows to run python files",
+        "description": "allows to execute Python files",
         "parameters": {
             "type": "object",
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "path to a python file that we want to run",
+                    "description": "a relative path to a python file within the working directory that we want to run",
                 },
                 "args": {
                     "type": "array", 

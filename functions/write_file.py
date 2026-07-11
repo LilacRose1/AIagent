@@ -27,13 +27,13 @@ schema_write_file = {
     "type": "function",
     "function": {
         "name": "write_file",
-        "description": "allows to write inside a file",
+        "description": "allows to insert the content into an existing file, or create a file if nonexistent and fill it with content",
         "parameters": {
             "type": "object",
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "path to a file that we want to change",
+                    "description": "a relative path to a file in a working directory that we want to to insert our content",
                     },
                 "content":{
                     "type": "string",
